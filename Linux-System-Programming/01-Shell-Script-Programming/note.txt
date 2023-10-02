@@ -1,0 +1,14 @@
+
+https://viblo.asia/p/cac-kien-thuc-co-ban-ve-shell-scripts-djeZ19OmZWz
+https://devhints.io/bash
+https://viblo.asia/p/cac-kien-thuc-co-ban-ve-shell-scripts-djeZ19OmZWz
+https://www.codingbroz.com/lonely-integer-bash-hackerrank-solution/
+
+#!/bin/bash 
+	Dùng để khai báo trình biên dịch nào để đọc đoạn script ở dưới cụ thể trong trường hợp này là /bin/bash. 
+	Để hiểu rõ hơn bạn có thể đọc thêm khái niệm về shebang
+chmod u+x <filename>
+	Cấp quyền execute cho user
+
+Fix Error: Permission denied (publickey)
+	Solution: https://jhooq.com/github-permission-denied-publickey/

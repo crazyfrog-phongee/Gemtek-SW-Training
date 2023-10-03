@@ -1,31 +1,14 @@
-#include <stdio.h>
-#include <dirent.h>
-#include <stdlib.h>
+#include "file_handling.h"
 
 int main(int argc, char const *argv[])
 {
-    DIR *dir;
-    struct dirent *entry;
-    int ret;
+    char dir_name[MAX_DIRECTORY_NAME] = {0};
 
-    dir = opendir(".");
-    if (NULL == dir)
-    {
-        printf("Error opening directory.\n");
-        exit(EXIT_FAILURE);
-    }
+    /* Get directory name from the user */
+    get_input_from_user(dir_name);
 
-    while ((entry = readdir(dir)) != NULL)
-    {
-        printf("%s %d\n", entry->d_name, entry->d_type);
-    }
-
-    ret = closedir(dir);
-    if (ret == -1)
-    {
-        printf("Error closing directory.\n");
-        exit(EXIT_FAILURE);
-    }
+    /* Print all file names and their types from the directory */
+    print_from_directory(dir_name);
 
     return 0;
 }

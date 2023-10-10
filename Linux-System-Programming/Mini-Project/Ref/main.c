@@ -61,7 +61,7 @@ typedef struct server_data
 
 typedef struct thread
 {
-    int thread_index;
+    int thread_index; 
     int running;
     pthread_t tid;
     char domain_name[128];
@@ -117,18 +117,32 @@ int get_ipv4_addr(char *domain_name, struct sockaddr_in *servinfo)
 {
     struct addrinfo hints, *addrinfo, *p;
     int status;
+    int len = strlen(domain_name);
+    char token[len];
+
+    if (strstr(domain_name, ":8080") != NULL)
+    {
+        strncpy(token, domain_name, (len - 5));
+        token[len - 5] = '\0';
+    }
+    else
+    {
+        strcpy(token, domain_name);
+    }
+
+    LOG(TAG, token);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((status = getaddrinfo(domain_name, "http", &hints, &addrinfo)) != 0)
+    if ((status = getaddrinfo(token, "http", &hints, &addrinfo)) != 0)
     {
-        printf("Error num: %d\n", status);
-        printf("Error def: %s\n", gai_strerror(status));
-        perror("getaddrinfo");
+        // printf("Error num: %d\n", status);
+        // printf("Error def: %s\n", gai_strerror(status));
+        // perror("getaddrinfo");
         // check_rv(status);
-        printf("Resolve DNS Failed: Can't get ip address! (%s)\n", domain_name);
+        printf("Resolve DNS Failed: Can't get ip address! (%s)\n", token);
         return 0;
     }
 
@@ -140,6 +154,7 @@ int get_ipv4_addr(char *domain_name, struct sockaddr_in *servinfo)
         }
     }
     freeaddrinfo(addrinfo);
+
     return 1;
 }
 
@@ -504,7 +519,7 @@ void *calculate_dl_speed_thread()
         dl_speed = (double)total_dl_size / 1000 / 1000 / duration * 8;
         if (duration > 0)
         {
-            printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bDownload speed: %0.2lf Mbps", dl_speed);
+            printf("\b\bDownload speed: %0.2lf Mbps", dl_speed);
             fflush(stdout);
         }
         usleep(500000);
@@ -517,7 +532,7 @@ void *calculate_dl_speed_thread()
             dl_speed = (double)total_dl_size / 1000 / 1000 / duration * 8;
             if (duration > 0)
             {
-                printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bDownload speed: %0.2lf Mbps", dl_speed);
+                printf("\b\bDownload speed: %0.2lf Mbps", dl_speed);
                 fflush(stdout);
             }
             break;
@@ -534,7 +549,7 @@ void *download_thread(void *arg)
     int fd;
     char sbuf[256] = {0}, rbuf[DL_BUFFER_SIZE];
     struct timeval tv;
-    fd_set fdSet;
+    fd_set read_fds;
 
     if ((fd = socket(thread[i].servinfo.sin_family, SOCK_STREAM, 0)) == -1)
     {
@@ -547,7 +562,7 @@ void *download_thread(void *arg)
         perror("Socket connect error!\n");
         goto err;
     }
-
+    
     sprintf(sbuf,
             "GET /%s HTTP/1.0\r\n"
             "Host: %s\r\n"
@@ -563,15 +578,15 @@ void *download_thread(void *arg)
 
     while (1)
     {
-        FD_ZERO(&fdSet);
-        FD_SET(fd, &fdSet);
+        FD_ZERO(&read_fds);
+        FD_SET(fd, &read_fds);
 
         tv.tv_sec = 3;
         tv.tv_usec = 0;
-        int status = select(fd + 1, &fdSet, NULL, NULL, &tv);
+        int status = select(fd + 1, &read_fds, NULL, NULL, &tv);
 
         int recv_byte = recv(fd, rbuf, sizeof(rbuf), 0);
-        if (status > 0 && FD_ISSET(fd, &fdSet))
+        if (status > 0 && FD_ISSET(fd, &read_fds))
         {
             if (recv_byte < 0)
             {
@@ -594,6 +609,7 @@ void *download_thread(void *arg)
         }
     }
 
+    printf("THREAD[%d]: Total download bytes: %ld", i, total_dl_size);
 err:
     if (fd)
         close(fd);
@@ -822,11 +838,6 @@ int main()
         printf("Latency: %d (us)\n", nearest_servers[best_server_index].latency);
         printf("===============================================\n");
 
-        for (int i = 0; i < NEAREST_SERVERS_NUM; i++)
-        {
-            printf("%s\n", nearest_servers[i].domain_name);
-        }
-        goto exit;
         // Set speed test timer
         signal(SIGALRM, stop_all_thread);
         timerVal.it_value.tv_sec = SPEEDTEST_DURATION;
@@ -846,7 +857,5 @@ int main()
         printf("\n");
     }
 
-exit:
-    LOG(TAG, "exit successfully");
     return 0;
 }

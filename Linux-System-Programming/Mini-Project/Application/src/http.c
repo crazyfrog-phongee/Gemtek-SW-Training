@@ -90,18 +90,7 @@ int init_connection(struct sockaddr_in *serv)
     timeout.tv_usec = 0;
     setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-
-    // if (connect(sockfd, (struct sockaddr *)serv, sizeof(struct sockaddr)) == -1)
-    // {
-    //     if (errno != EINPROGRESS)
-    //     {
-    //         // printf("\n\nCreate connection to %s failed!\n", domain_name);
-    //         perror("Error: ");
-    //         if (sockfd)
-    //             close(sockfd);
-    //         return 0;
-    //     }
-    // }
+    
     status = connect(sockfd, (struct sockaddr *)serv, sizeof(struct sockaddr));
     jump_unless(status == 0);
     
@@ -157,7 +146,6 @@ int get_http_file(struct sockaddr_in *serv, char *domain_name, char *request_url
     int ret;
 
     fd = init_connection(serv);
-    printf("HTTP: %d\n", fd);
     error_unless(fd > 0, "Could not make connection to '%s'", domain_name);
 
     build_http_get(sbuf, domain_name, request_url);
@@ -177,7 +165,6 @@ int get_http_file(struct sockaddr_in *serv, char *domain_name, char *request_url
 
         tv.tv_sec = 3;
         tv.tv_usec = 0;
-        LOG(TAG, "Get timeout");
         int status = select(fd + 1, &fdSet, NULL, NULL, &tv);
         int i = recv(fd, rbuf, sizeof(rbuf), 0);
         if (status > 0 && FD_ISSET(fd, &fdSet))

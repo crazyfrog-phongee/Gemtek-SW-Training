@@ -94,21 +94,14 @@ int main(int argc, char const *argv[])
 
     best_server_index = get_best_server(nearest_servers);
     printf("best_server_index: %d\n", best_server_index);
-    if (best_server_index == -1)
+    if (best_server_index < 0 || best_server_index > NEAREST_SERVERS_NUM)
     {
         printf("Can't get the best server.\n");
         return -1;
     }
     
 #if (DEBUG_LVL > 0)
-    printf("==========The best server information==========\n");
-    printf("URL: %s\n", nearest_servers[best_server_index].url);
-    printf("Latitude: %lf, Longitude: %lf\n", nearest_servers[best_server_index].latitude, nearest_servers[best_server_index].longitude);
-    printf("Name: %s\n", nearest_servers[best_server_index].name);
-    printf("Country: %s\n", nearest_servers[best_server_index].country);
-    printf("Distance: %lf (km)\n", nearest_servers[best_server_index].distance);
-    printf("Latency: %d (us)\n", nearest_servers[best_server_index].latency);
-    printf("===============================================\n");
+    get_best_server_info(nearest_servers, best_server_index);
 #endif
 
     /* Set speedtest timer */

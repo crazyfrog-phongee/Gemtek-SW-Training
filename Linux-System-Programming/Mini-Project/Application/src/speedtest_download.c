@@ -101,7 +101,7 @@ int speedtest_download(server_data_t *nearest_server, thread_t *thr, pthread_mut
     token = strtok(url, "/");
     while (token != NULL)
     {
-        memset(buf, 0, sizeof(buf));
+        memset(buf, 0, sizeof(buf)); 
         strncpy(buf, token, strlen(token));
 
         // Change file name

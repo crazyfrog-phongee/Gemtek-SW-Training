@@ -86,6 +86,8 @@ int get_nearest_server(double lat_c, double lon_c, server_data_t *nearest_server
                 count++;
             }
         }
+
+        fclose(fp);
     }
 
     if (count > 0)
@@ -179,4 +181,38 @@ int get_best_server(server_data_t *nearest_servers)
             nearest_servers[i].latency = -1;
         }
     }
+
+    /* Select low latency server */
+    for (i = 0; i < NEAREST_SERVERS_NUM; i++)
+    {
+        if (i == 0)
+        {
+            best_index = i;
+            latency = nearest_servers[i].latency;
+        }
+        else
+        {
+            if (nearest_servers[i].latency < latency && nearest_servers[i].latency != -1)
+            {
+                best_index = i;
+                latency = nearest_servers[i].latency;
+            }
+        }
+    }
+
+    return best_index;
+}
+
+void get_best_server_info(server_data_t *nearest_servers, int best_server_index)
+{
+    printf("==========The best server information==========\n");
+    printf("URL: %s\n", nearest_servers[best_server_index].url);
+    printf("Latitude: %lf, Longitude: %lf\n", nearest_servers[best_server_index].latitude, nearest_servers[best_server_index].longitude);
+    printf("Name: %s\n", nearest_servers[best_server_index].name);
+    printf("Country: %s\n", nearest_servers[best_server_index].country);
+    printf("Distance: %lf (km)\n", nearest_servers[best_server_index].distance);
+    printf("Latency: %d (us)\n", nearest_servers[best_server_index].latency);
+    printf("===============================================\n");
+
+    return;
 }

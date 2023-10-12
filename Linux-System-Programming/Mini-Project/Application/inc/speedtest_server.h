@@ -22,4 +22,7 @@ typedef struct server_data
     struct sockaddr_in servinfo;
 } server_data_t;
 
+int get_nearest_server(double lat_c, double lon_c, server_data_t *nearest_servers);
+int get_best_server(server_data_t *nearest_servers);
+
 #endif

@@ -2,6 +2,7 @@
 #define MAIN_H_
 
 #include <pthread.h>
+#include <netinet/in.h>
 
 #define SPEEDTEST_DOMAIN_NAME "www.speedtest.net"
 #define SPEEDTEST_SERVERS_DOMAIN_NAME "c.speedtest.net"
@@ -12,6 +13,7 @@
 #define FILE_DIRECTORY_PATH "/tmp/"
 
 #define THREAD_NUMBER 3
+#define NEAREST_SERVERS_NUM 10
 
 typedef struct client_data
 {

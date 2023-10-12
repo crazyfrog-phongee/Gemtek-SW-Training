@@ -17,5 +17,6 @@
 
 int speedtest_download(server_data_t *nearest_server, thread_t *thr, pthread_mutex_t *mtx);
 void *calculate_dl_speed_thread();
+// int *https_download_thread(server_data_t *nearest_server, thread_t *thr, pthread_mutex_t *mtx);
 
 #endif

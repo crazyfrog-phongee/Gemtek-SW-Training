@@ -1,7 +1,7 @@
 /*
  * common.h
  *
- * Created on: Sep 19, 2023
+ * Created on: Oct 12, 2023
  * Author: PhongEE
  */
 
@@ -19,7 +19,7 @@
     {                  \
         goto error;    \
     }
-    
+
 #define error_unless(A, M, ...)                 \
     if (!(A))                                   \
     {                                           \

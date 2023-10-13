@@ -11,6 +11,8 @@
 #define SERVERS_LOCATION_REQUEST_URL "speedtest-servers-static.php?"
 
 #define FILE_DIRECTORY_PATH "/tmp/"
+#define CERT_FILE "/home/leonard_nguyen/Working-Space/SW-Training/Linux-System-Programming/Mini-Project/Application/cert/cacert.pem"
+#define KEY_FILE "/home/leonard_nguyen/Working-Space/SW-Training/Linux-System-Programming/Mini-Project/Application/cert/private/cakey.pem"
 
 #define THREAD_NUMBER 3
 #define NEAREST_SERVERS_NUM 10

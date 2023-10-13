@@ -25,5 +25,6 @@ typedef struct server_data
 int get_nearest_server(double lat_c, double lon_c, server_data_t *nearest_servers);
 int get_best_server(server_data_t *nearest_servers);
 void get_best_server_info(server_data_t *nearest_servers, int best_server_index);
+void get_list_servers(char *protocol);
 
 #endif

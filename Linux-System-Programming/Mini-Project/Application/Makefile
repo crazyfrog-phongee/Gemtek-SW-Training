@@ -3,9 +3,9 @@ NO_COLOR = \033[0m
 FLAGS = -Wall -std=c99 -fdiagnostics-color=auto -lm -lpthread -L/usr/lib -lssl -lcrypto
 CC := gcc
 
-DEBUG_LVL = 1
+DEBUG_LVL = 0
 SPEEDTEST_CONFIG = -DDEBUG_LVL=$(DEBUG_LVL) -DUSE_HTTPS=$(USE_HTTPS)
-USE_HTTPS = 0
+USE_HTTPS = 1
 
 INC = ./inc
 SRC = ./src/*.c

@@ -39,10 +39,6 @@ int get_ipv4_addr(char *domain_name, struct sockaddr_in *servinfo)
         strcpy(token, domain_name);
     }
 
-#if (DEBUG_LVL > 0)
-    LOG(TAG, token);
-#endif
-
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -85,15 +81,14 @@ int init_connection(struct sockaddr_in *serv)
     sockfd = socket(serv->sin_family, SOCK_STREAM, 0);
     jump_unless(sockfd > 0);
 
-
     timeout.tv_sec = TIMEOUT_CONNECT;
     timeout.tv_usec = 0;
     setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
-    
+
     status = connect(sockfd, (struct sockaddr *)serv, sizeof(struct sockaddr));
     jump_unless(status == 0);
-    
+
     return sockfd;
 
 error:
@@ -151,7 +146,7 @@ int get_http_file(struct sockaddr_in *serv, char *domain_name, char *request_url
     build_http_get(sbuf, domain_name, request_url);
 
     ret = make_request(fd, sbuf);
-    error_unless(ret != -1, "Could not make connection to '%s'", domain_name);
+    error_unless(ret != -1, "Could not make request to '%s'", domain_name);
 
     sprintf(tmp_path, "%s%s", FILE_DIRECTORY_PATH, filename);
     fp = fopen(tmp_path, "w+");
@@ -212,9 +207,9 @@ int get_ip_address_position(char *fileName, client_data_t *client_data)
     FILE *fp = NULL;
     char filePath[128] = {0}, line[512] = {0}, lat[64] = {0}, lon[64] = {0};
     sprintf(filePath, "%s%s", FILE_DIRECTORY_PATH, fileName);
-
     if ((fp = fopen(filePath, "r")) != NULL)
     {
+
         while (fgets(line, sizeof(line) - 1, fp) != NULL)
         {
             if (!strncmp(line, "<client", 7))
@@ -226,8 +221,9 @@ int get_ip_address_position(char *fileName, client_data_t *client_data)
                 break;
             }
         }
-        fclose(fp);
     }
+    fclose(fp);
+
     return 1;
 }
 
@@ -267,6 +263,28 @@ void ShowCerts(SSL *ssl)
         printf("Info: No client certificates configured.\n");
 }
 
+void LoadCertificates(SSL_CTX *ctx, char *CertFile, char *KeyFile)
+{
+    /* set the local certificate from CertFile */
+    if (SSL_CTX_use_certificate_file(ctx, CertFile, SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+    /* set the private key from KeyFile (may be the same as CertFile) */
+    if (SSL_CTX_use_PrivateKey_file(ctx, KeyFile, SSL_FILETYPE_PEM) <= 0)
+    {
+        ERR_print_errors_fp(stderr);
+        abort();
+    }
+    /* verify private key */
+    if (!SSL_CTX_check_private_key(ctx))
+    {
+        fprintf(stderr, "Private key does not match the public certificate\n");
+        abort();
+    }
+}
+
 int get_https_file(struct sockaddr_in *serv, char *domain_name, char *request_url, char *filename)
 {
     SSL_CTX *ctx;
@@ -284,6 +302,7 @@ int get_https_file(struct sockaddr_in *serv, char *domain_name, char *request_ur
 
     SSL_library_init();
     ctx = InitCTX();
+    LoadCertificates(ctx, CERT_FILE, KEY_FILE);
     ssl = SSL_new(ctx); /* create new SSL connection state */
 
     fd = init_connection(serv);
@@ -296,6 +315,8 @@ int get_https_file(struct sockaddr_in *serv, char *domain_name, char *request_ur
         printf("Failed to set SSL file descriptor\n");
         return -1;
     }
+
+    ShowCerts(ssl);
 
     build_http_get(sbuf, domain_name, request_url);
 
@@ -348,6 +369,7 @@ int get_https_file(struct sockaddr_in *serv, char *domain_name, char *request_ur
         }
     }
 
+    fclose(fp);
     close(fd); /* close socket */
     SSL_free(ssl);
     SSL_CTX_free(ctx); /* release context */

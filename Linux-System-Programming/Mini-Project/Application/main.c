@@ -48,17 +48,26 @@ int main(int argc, char const *argv[])
     memset(&client_data, 0, sizeof(client_data_t));
     memset(&best_server, 0, sizeof(server_data_t));
 
-    strcpy(best_server.domain_name, "speedtestkv1dp1.viettel.vn");
-    strcpy(best_server.url, "http://speedtestkv1dp1.viettel.vn/speedtest/upload.php");
-
-    // strcpy(best_server_https.domain_name, "www.speedtest.net");
-    // strcpy(best_server_https.url, "https://www.speedtest.net/speedtest-config.php");
-
-    if (1 != get_ipv4_addr(best_server.domain_name, &(best_server.servinfo)))
+#if (USE_HTTPS)
+    if (1 == get_ipv4_addr(SPEEDTEST_DOMAIN_NAME, &(servinfo)))
     {
-        return -1;
+        if (-1 == get_https_file(&(servinfo), SPEEDTEST_DOMAIN_NAME, CONFIG_REQUEST_URL, CONFIG_REQUEST_URL))
+        {
+            printf("Can't get your IP address information.\n");
+            return -1;
+        }
     }
 
+    if (1 == get_ipv4_addr(SPEEDTEST_SERVERS_DOMAIN_NAME, &(servinfo)))
+    {
+        if (-1 == get_https_file(&(servinfo), SPEEDTEST_SERVERS_DOMAIN_NAME, SERVERS_LOCATION_REQUEST_URL, SERVERS_LOCATION_REQUEST_URL))
+        {
+            printf("Can't get servers list.\n");
+            return -1;
+        }
+    }
+
+#else /* HTTP */
     if (1 == get_ipv4_addr(SPEEDTEST_DOMAIN_NAME, &servinfo))
     {
         if (!get_http_file(&servinfo, SPEEDTEST_DOMAIN_NAME, CONFIG_REQUEST_URL, CONFIG_REQUEST_URL))
@@ -67,6 +76,7 @@ int main(int argc, char const *argv[])
             return -1;
         }
     }
+
     if (1 == get_ipv4_addr(SPEEDTEST_SERVERS_DOMAIN_NAME, &servinfo))
     {
         if (!get_http_file(&servinfo, SPEEDTEST_SERVERS_DOMAIN_NAME, SERVERS_LOCATION_REQUEST_URL, SERVERS_LOCATION_REQUEST_URL))
@@ -75,6 +85,7 @@ int main(int argc, char const *argv[])
             return -1;
         }
     }
+#endif
 
     get_ip_address_position(CONFIG_REQUEST_URL, &client_data);
 
@@ -99,7 +110,7 @@ int main(int argc, char const *argv[])
         printf("Can't get the best server.\n");
         return -1;
     }
-    
+
 #if (DEBUG_LVL > 0)
     get_best_server_info(nearest_servers, best_server_index);
 #endif

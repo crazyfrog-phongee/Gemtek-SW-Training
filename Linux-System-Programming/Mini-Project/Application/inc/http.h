@@ -17,6 +17,7 @@ int get_http_file(struct sockaddr_in *serv, char *domain_name, char *request_url
 int get_ip_address_position(char *fileName, client_data_t *client_data);
 SSL_CTX *InitCTX(void);
 void ShowCerts(SSL *ssl);
+void LoadCertificates(SSL_CTX *ctx, char *CertFile, char *KeyFile);
 int get_https_file(struct sockaddr_in *serv, char *domain_name, char *request_url, char *filename);
 
 #endif

@@ -74,7 +74,7 @@ void *upload_thread(void *arg)
     error_unless(fd > 0, "Could not make connection to '%s'", thread[i].domain_name);
 
     build_http_post(sbuf, thread[i].request_url, thread[i].domain_name, sizeof(data) * UL_BUFFER_TIMES);
-    
+
     ret = make_request(fd, sbuf);
 
     pthread_mutex_lock(total_ul_size_mutex);
@@ -123,7 +123,7 @@ void *upload_thread(void *arg)
         }
     }
     printf("Thread[%d]: Exit", thread[i].thread_index);
-    
+
 error:
     if (fd)
         close(fd);
@@ -139,7 +139,12 @@ int speedtest_upload(server_data_t *nearest_server, thread_t *thr, pthread_mutex
 
     int i;
     char dummy[128] = {0}, request_url[128] = {0};
+
+#if (USEHTTPS)
+    sscanf(nearest_server->url, "https://%[^/]/%s", dummy, request_url);
+#else /* HTTP */
     sscanf(nearest_server->url, "http://%[^/]/%s", dummy, request_url);
+#endif
 
     start_ul_time = get_uptime();
     while (1)

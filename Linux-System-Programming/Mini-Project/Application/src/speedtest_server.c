@@ -6,7 +6,9 @@
 #include <stdlib.h>
 
 #include "speedtest_server.h"
+
 #include "main.h"
+#include "http.h"
 
 #define M_PI 3.141592653589793238462643383279502884
 
@@ -133,14 +135,29 @@ int get_best_server(server_data_t *nearest_servers)
                 strcat(latency_url[i], "/");
             }
 
-            if (strstr(buf, "http:"))
+#if (USEHTTPS)
+            if (strstr(buf, "https:"))
+            {
                 strcat(latency_url[i], "/");
+            }
+#else
+            if (strstr(buf, "http:"))
+            {
+                strcat(latency_url[i], "/");
+            }
+#endif
 
             ptr = strtok(NULL, "/");
         }
 
-        // Get domain name
+// Get domain name
+#if (USEHTTPS)
+        sscanf(latency_url[i], "https://%[^/]", nearest_servers[i].domain_name);
+
+#else
         sscanf(latency_url[i], "http://%[^/]", nearest_servers[i].domain_name);
+
+#endif
 
         // Get request url
         memset(latency_request_url, 0, sizeof(latency_request_url));
@@ -215,4 +232,50 @@ void get_best_server_info(server_data_t *nearest_servers, int best_server_index)
     printf("===============================================\n");
 
     return;
+}
+
+void get_list_servers(char *protocol)
+{
+    struct sockaddr_in servinfo;
+
+    if (strcmp(protocol, "http") == 0)
+    {
+        if (1 == get_ipv4_addr(SPEEDTEST_DOMAIN_NAME, &servinfo))
+        {
+            if (!get_http_file(&servinfo, SPEEDTEST_DOMAIN_NAME, CONFIG_REQUEST_URL, CONFIG_REQUEST_URL))
+            {
+                printf("Can't get your IP address information.\n");
+                return -1;
+            }
+        }
+
+        if (1 == get_ipv4_addr(SPEEDTEST_SERVERS_DOMAIN_NAME, &servinfo))
+        {
+            if (!get_http_file(&servinfo, SPEEDTEST_SERVERS_DOMAIN_NAME, SERVERS_LOCATION_REQUEST_URL, SERVERS_LOCATION_REQUEST_URL))
+            {
+                printf("Can't get servers list.\n");
+                return -1;
+            }
+        }
+    }
+    else if (strcmp(protocol, "https") == 0)
+    {
+        if (1 == get_ipv4_addr(SPEEDTEST_DOMAIN_NAME, &(servinfo)))
+        {
+            if (-1 == get_https_file(&(servinfo), SPEEDTEST_DOMAIN_NAME, CONFIG_REQUEST_URL, CONFIG_REQUEST_URL))
+            {
+                printf("Can't get your IP address information.\n");
+                return -1;
+            }
+        }
+
+        if (1 == get_ipv4_addr(SPEEDTEST_SERVERS_DOMAIN_NAME, &(servinfo)))
+        {
+            if (-1 == get_https_file(&(servinfo), SPEEDTEST_SERVERS_DOMAIN_NAME, SERVERS_LOCATION_REQUEST_URL, SERVERS_LOCATION_REQUEST_URL))
+            {
+                printf("Can't get servers list.\n");
+                return -1;
+            }
+        }
+    }
 }

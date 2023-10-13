@@ -94,14 +94,19 @@ int speedtest_download(server_data_t *nearest_server, thread_t *thr, pthread_mut
     char url[128] = {0}, request_url[128] = {0}, dummy[128] = {0}, buf[128];
     char *token = NULL;
 
+#if (USEHTTPS)
+    sscanf(nearest_server->url, "https://%[^/]/%s", dummy, request_url);
+#else /* HTTP */
     sscanf(nearest_server->url, "http://%[^/]/%s", dummy, request_url);
+#endif
+
     strncpy(url, request_url, sizeof(request_url));
     memset(request_url, 0, sizeof(request_url));
 
     token = strtok(url, "/");
     while (token != NULL)
     {
-        memset(buf, 0, sizeof(buf)); 
+        memset(buf, 0, sizeof(buf));
         strncpy(buf, token, strlen(token));
 
         // Change file name
@@ -117,6 +122,10 @@ int speedtest_download(server_data_t *nearest_server, thread_t *thr, pthread_mut
         token = strtok(NULL, "/");
     }
 
+#if (DEBUG_LVL > 0)
+    LOG(TAG, request_url);
+#endif
+
     /* Start downloading*/
     start_dl_time = get_uptime();
     while (1)
@@ -130,7 +139,12 @@ int speedtest_download(server_data_t *nearest_server, thread_t *thr, pthread_mut
             {
                 thread[i].thread_index = i;
                 thread[i].running = 1;
+#if (USE_HTTPS)
+                pthread_create(&thread[i].tid, NULL, https_download_thread, &thread[i]);
+
+#else
                 pthread_create(&thread[i].tid, NULL, download_thread, &thread[i]);
+#endif
             }
         }
         if (thread_all_stop)
@@ -184,72 +198,94 @@ void *calculate_dl_speed_thread()
     return NULL;
 }
 
-// void *https_download_thread(void *arg)
-// {
-//     const char *TAG = "HTTPS_DOWNLOAD_THREAD";
-//     char data_log[200] = {0};
+void *https_download_thread(void *arg)
+{
+    const char *TAG = "HTTPS_DOWNLOAD_THREAD";
+    char data_log[200] = {0};
 
-//     thread_t *t_arg = arg;
-//     int i = t_arg->thread_index;
+    thread_t *t_arg = arg;
+    int i = t_arg->thread_index;
 
-//     SSL_CTX *ctx;
-//     SSL *ssl;
-//     FILE *fp = NULL;
-//     int fd;
-//     char sbuf[256] = {0}, tmp_path[128] = {0};
-//     int bytes_sent = 0;
-//     int bytes_received = 0;
-//     char rbuf[DL_BUFFER_SIZE] = {0};
-//     int ret;
+    SSL_CTX *ctx;
+    SSL *ssl;
+    FILE *fp = NULL;
+    int fd;
+    char sbuf[256] = {0}, tmp_path[128] = {0};
+    int bytes_sent = 0;
+    int bytes_received = 0;
+    char rbuf[DL_BUFFER_SIZE] = {0};
+    struct timeval tv;
+    fd_set read_fds;
+    int ret;
 
-//     build_request(sbuf, thread[i].domain_name, thread[i].request_url);
+    SSL_library_init();
+    ctx = InitCTX();
+    ssl = SSL_new(ctx); /* create new SSL connection state */
 
-//     ret = make_request(fd, sbuf);
-//     error_unless(ret != -1, "Could not make connection to '%s'", thread[i].domain_name);
+    LoadCertificates(ctx, CERT_FILE, KEY_FILE);
 
-//     SSL_library_init();
-//     ctx = InitCTX();
-//     ssl = SSL_new(ctx); /* create new SSL connection state */
+    fd = init_connection(&(thread[i].servinfo));
+    error_unless(fd > 0, "Could not make connection to '%s'", thread[i].domain_name);
 
-//     fd = init_connection(&(thread[i].servinfo));
-//     error_unless(fd > 0, "Could not make connection to '%s'", thread[i].domain_name);
+    SSL_set_fd(ssl, fd); /* attach the socket descriptor */
 
-//     SSL_set_fd(ssl, fd); /* attach the socket descriptor */
+    ret = SSL_connect(ssl);
+    if (ret <= 0) /* perform the connection */
+    {
+        printf("Failed to set SSL file descriptor\n");
+        return -1;
+    }
 
-//     ret = SSL_connect(ssl);
-//     if (ret <= 0) /* perform the connection */
-//     {
-//         printf("Failed to set SSL file descriptor\n");
-//         return -1;
-//     }
+    ShowCerts(ssl);
 
-//     build_request(sbuf, thread[i].domain_name, thread[i].request_url);
+    build_http_get(sbuf, thread[i].domain_name, thread[i].request_url);
 
-//     bytes_sent = SSL_write(ssl, sbuf, strlen(sbuf));
-//     if (bytes_sent <= 0)
-//     {
-//         printf("Failed to send HTTPS request\n");
-//         return -1;
-//     }
+    bytes_sent = SSL_write(ssl, sbuf, strlen(sbuf));
+    if (bytes_sent <= 0)
+    {
+        printf("Failed to send HTTPS request\n");
+        return -1;
+    }
 
-//     while ((bytes_received = SSL_read(ssl, rbuf, sizeof(rbuf) - 1)) > 0)
-//     {
-//         rbuf[bytes_received] = '\0';
+    while (1)
+    {
+        FD_ZERO(&read_fds);
+        FD_SET(fd, &read_fds);
 
-//         // Process the received data as needed
+        tv.tv_sec = 3;
+        tv.tv_usec = 0;
+        int status = select(fd + 1, &read_fds, NULL, NULL, &tv);
 
-//         printf("%s", rbuf);
-//     }
+        int recv_byte = SSL_read(ssl, rbuf, sizeof(rbuf));
+        if (status > 0 && FD_ISSET(fd, &read_fds))
+        {
+            if (recv_byte < 0)
+            {
+                printf("Can't receive data!\n");
+                break;
+            }
+            else if (recv_byte == 0)
+            {
+                break;
+            }
+            else
+            {
+                pthread_mutex_lock(total_dl_size_mutex);
+                total_dl_size += recv_byte;
+                pthread_mutex_unlock(total_dl_size_mutex);
+            }
 
-//     if (bytes_received < 0)
-//     {
-//         printf("Error while receiving server's response\n");
-//         goto error;
-//     }
+            if (thread_all_stop)
+            {
+                break;
+            }
+        }
+    }
 
-// error:
-//     if (fd)
-//         close(fd);
-//     thread[i].running = 0;
-//     return NULL;
-// }
+error:
+    if (fd)
+        close(fd);
+    thread[i].running = 0;
+
+    return NULL;
+}

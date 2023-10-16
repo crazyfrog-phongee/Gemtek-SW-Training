@@ -1,0 +1,207 @@
+I. OVERVIEW
+I.1 Khái niệm mạng máy tính
+- Thiết bị đầu cuối (end device/host): 
+* Bất kỳ thiết bị tính toán nào có thể làm phát sinh dữ liệu người dùng (điểm đầu của dữ liệu),
+VD: máy tính, điện thoại, thiết bị gia dụng thông minh
+* Kết nối thiết bị đầu cuối: logic(truyền dữ liệu), vật lý(truyền tín hiệu).
+Dữ liệu/tín hiệu gọi chung là thông tin.
+- Môi trường truyền dẫn (transmission media): giúp tín hiệu vật lý truyền trong việc kết nối thiết bị đầu cuối.
+VD: wireless media, copper cable, optical fiber
+- Thiết bị mạng (network device): máy tính chuyên dụng nằm trên đường đi của thông tin và đảm nhiệm nhiều vai trò khác nhau.
+VD: Các thiết bị mạng thường gặp:
+* Hub, repeater, switch, bridge: giúp kết nối các thiết bị đầu cuối thành 1 mạng phạm vi nhỏ (mạng cục bộ LAN)
+* Router: giúp kết nối các mạng riêng biệt với nhau thành 1 mạng lớn hơn.
+* Modem: giúp chuyển đổi tín hiệu từ dạng này sang dạng khác.
+* Access point: giúp kết nối các thiết bị đầu cuối vào một mạng không dùng dây dẫn
+* Firewall: giúp bảo vệ mạng.
+- Giao thức mạng (network protocol): là tập hợp các quy tắc điều khiển quá trình truyền thông tin trong mạng.
+* Tuy nhiên, trong hệ thống mạng các giao thức thực tế được xây dựng thành những phần meemfh oạt động trên thiết bị đầu cuối hoặc thiết bị mạng.
+- Mô hình mạng (network model): cho phép phân ra các thành phần của một hệ thống mạng, đưa ra vai trò và chức năng của từng nhóm thành phần, cách thức chúng tương tác.
+* Hiện nay. có 2 mô hình mạng được sử dụng rộng rãi: OSI model vs TCP/IP model
+
+I.2 Phân loại mạng máy tính
+- Mạng cá nhân PAN
+- Mạng cục bộ LAN:
+* Sử dụng một số công nghệ mạng LAN riêng biệt
+* Giới hạn phạm vi: vài trăm m
+* Vận tốc truyền dữ liệu: 100Mbps, 1Gbps, 100Gbps
+Phạm vi hoạt động và tốc độ truyền dữ liệu do công nghệ LAN quyết định. Các công nghệ LAN thường ưu tiên tốc độ truyền thay vì khoảng cách truyền.
+- Mạng diện rộng WAN:
+* Sử dụng rất nhiều công nghệ mạng khác nhau và khác biệt với các công nghệ LAN
+* Phạm vi không giới hạn
+* Tốc độ truyền dữ liệu thường < LAN
+Các công nghệ WAN thường ưu tiên khoảng cách truyền và độ ổn định thay vì tốc độ truyền
+- Mạng toàn cầu Internet
+
+I.3 Phần mềm ứng dụng mạng:
+- Phầm mềm ứng dụng mạng là một hệ thống bao gồm nhiều chương trình chạy trên các máy tính khác nhau và trao đổi thông tin qua mạng.
+VD: Hệ thống phầm mềm web
+browser <----network----> webserver
+Mạng máy tính đóng vai trò là trường giúp các thành phần của ứng dụng có thể trao đổi dữ liệu.
+Ứng dụng mạng - Network services - Network protocol (under APIs).
+- Các công nghệ mạng chỉ khác nhau về phần cứng. Ở bên trên, chúng sử dụng chung bộ giao thức (gọi là bộ giao thức TCP/IP) => một chương trình ứng dụng trong mạng LAN
+có thể tương tác với chương trình khác ở trong LAN, WAN, hoặc trên Internet theo cùng 1 cách thức mà ko cần quan tâm đến network hardware.
+
+I.4 Một số khái niệm hỗ trợ học mạng máy tính
+- Nhị phân: sử dụng trong các phép tính toán liên quan đến địa chỉ máy tính (địa chỉ IP)
+- Thập lục phân: sử dụng cho các địa chỉ các thiết bị mạng
+- Đơn vị đo khối lượng thông tin: bit(b), byte(B)
+* Đơn vị dẫn xuất thập phân
+* Đơn vị dẫn xuất nhị phân
+- Hệ số đếm 256, mảng byte: sử dụng khi truyền dữ liệu người dùng qua mạng
+* Tất cả dữ liệu người dùng đều được biến đổi thành số ở hệ 256 trước khi cung cấp cho dịch vị truyền thông mạng. Dữ liệu sau khi biến đổi tồn tại ở dạng mảng của các byte.
+* Thứ tự viết các byte (endianess)
+- Cách biểu diễn chuỗi byte/bit bằng hình ảnh:
+* Khái niệm header
+- Đơn vị đo tốc độ truyền dữ liệu: bps
+
+II. PHẦN MỀM VÀ GIAO THỨC MẠNG
+II.3 Phần mềm ứng dụng mạng
+- Phầm mềm ứng dụng mạng là một hệ thống bao gồm nhiều chương trình chạy trên các thiết bị đầu cuối khác nhau và trao đổi thông tin qua mạng.
+- Phần mềm mạng chủ yếu làm việc với các dịch vụ mạng (network services) do HĐH cung cấp. Các dịch vụ mạng là các APIs của giao thức mạng mà phần mềm ứng dụng có thể gọi
+để yêu cầu mang thông tin đi hoặc nhận thông tin về.
+- Phát triển ứng dụng mạng: bản chất là viết 1 hoặc nhiều chương trình chạy trên các thiết bị đầu cuối khác nhau và giao tiếp với nhau qua mạng.
+- Các HĐH hiện đại cung cấp các dịch vụ truyền thông dưới dạng giao diện lập trình ứng dụng (Application Programming Interface - API), gọi là socket. Sử dụng socket
+là cách thức cơ bản để phần mềm ứng dụng tương tác với dịch vụ truyền thông của HĐH.
+
+II.4 Mô hình ứng dụng mạng
+- Mô hình client/server: 
+VD: Web, FTP, Email
+- Mô hình P2P 
+
+II.5 Giao thức mạng
+- Là tập hợp các quy tắc điều khiển quá trình truyền thông mà các thành phần hệ thống mạng phải tuân theo khi tham gia vào quá trình truyền thông.
+- Mỗi giao thức quy định 3 yếu tố chính:
+* Cấu trúc của các thông tin trao đổi
+* Trình tự trao đổi thông tin
+* Các hành động cần thực hiện khi gửi/nhận thông tin.
+- Vai trò của giao thức: 
+* Giao thức truyền thông đóng vai trò một ngôn ngữ chung gắn kết và phối hợp hoạt động của các thiết bị về mặt logic (để phân biệt với môi trường truyền gắn kết thiết bị về mặt vật lý).
+* Giao thức là thành phần bắt buộc đối với cả phần cứng và phần mềm mạng.
+- Đặc tả giao thức ----> Thực thi giao thức
+
+II.6 Giao thức và dịch vụ truyền thông
+- Truyền thông end-to-end
+- Truyền thông host-to-host
+=> Dịch vụ truyền host-to-host là nền tảng hoạt động cho dịch vụ truyền end-to-end.
+* Để thực hiện nhiệm vụ truyền host-to-host, trên cả thiết bị đầu cuối và router đều phải cài đặt chung 1 giao thức (giao thức IP trong mạng TCP/IP). Giao thức này được thực thi ở dạng phần mềm hệ thống trên
+thiết bị đầu cuối, và là một phần mềm chạy trên hệ điều hành chuyên dụng của router. Cả truyền thông end-to-end hay host-to-host đều là truyền thông ảo (virtual communication).
+- Truyền thông tin cậy/không tin cậy.
+- Truyền thông hướng liên kết/phi liên kết.
+
+II.7 Thực hành
+Yêu cầu bài thực hành: Ứng dụng mạng có 2 thành phần hoạt động song song theo mô hình mạng client/server.
+Server đang nghe tất cả các giao diện mạng và client đang chạy trên cùng máy vật lý với server, client có thể sử dụng địa chỉ loopback (127.0.0.1) và số cổng 1308
+
+II.8 Bộ giao thức TCP/IP
+Đặt vấn đề:
+* Trên thiết bị đầu cuối đồng thời có rất nhiều giao thức cùng hoạt động;
+* Những giao thức gắn với các phần mềm ứng dụng và thường được tích hợp trong các phần mềm này.
+* Những giao thức cung cấp dịch vụ truyền thông end-to-end và host-to-host do hệ điều hành cung cấp.
+* Ngoài ra, còn có những giao thức gắn với các công nghệ và thiết bị phần cứng
+=> Các giao thức này không hoạt động độc lập mà có sự quan hệ với nhau. Theo đó, giao thức gắn với ứng dụng sẽ gọi tới giao thức end-to-end. Giao thức end-to-end lại gọi tới giao thức host-to-host.
+=> Nhóm các giao thức trên thiết bị đầu cuối có quan hệ với nhau như vậy tạo thành 1 bộ giao thức.
+Hiện nay, bộ giao thức TCP/IP là bộ giao thức phổ biến nhất, là chuẩn công nghiệp được hỗ trợ bởi mọi nhà sản xuất phần cứng và phần mềm mạng.
+- Bộ giao thức TCP/IP: chia các giao thức vào các nhóm, mỗi nhóm được gọi là 1 tầng. Tổng cộng có 4 tầng:
+* Tầng ứng dụng (Application layer): chứa các giao thức mà thực thi của nó tích hợp trong các phần mềm ứng dụng
+VD: HTTP (sử dụng bởi browser và web server)
+SMTP, POP3, IMAP: sử dụng bởi chương trình Email client và server
+FTP: sử dụng bởi chương trình FTP client và server
+* Tầng giao vận (Transport layer): chứa các giao thức cung cấp dịch vụ truyền thông end-to-end, chủ yếu bao gồm
+TCP: cung cấp dịch vụ truyền thông tin cậy, hướng liên kết.
+UDP: cung cấp dịch vụ truyền thông không tin cậy, phi liên kết tốc độ cao.
+* Tầng liên mạng (internet layer): chứa các giao thức cung cấp dịch vụ truyền thông host-to-host.
+IP
+IPv6
+* Tầng liên kết (link layer): chứa các giao thức giúp kết nối thiết bị đầu cuối với mạng cục bộ.
+ARP (Address Resolution Protocol): dùng để xác định địa chỉ vật lý MAC gắn với địa chỉ logic IP của thiết bị.
+RARP
+NDP: phiên bản ARP cho IPv6
+DHCP và DHCPv6: tự động gán thông số cấu hình cho thiết bị.
+=> Vậy các giao thức tối thiểu thực thi ở trên các thiết bị đầu cuối là gì?
+Tối thiểu bộ giao thức TCP/IP yêu cầu phải thực thi các giao thức sau: IP, ARP, ICMP, TCP, UDP, IGMP. Ngoài ra giao thức IPv6 yêu cầu thêm NDP, ICMPv6, MLD.
+Có thể thấy rằng, đây đều là các giao thức ở tầng 2 và 3. Tất cả các giao thức tầng ứng dụng đều không bắt buộc vì chúng đi kèm với ứng dụng.
+
+Cụ thể hơn:
+* Giao thức tầng ứng dụng: luôn đi kèm với chương trình và thường được tích hợp thành 1 module của chương trình
+* Giao thức tầng giao vận và liên mạng: 
+Chương trình ứng dụng có thể khai thác các dịch vụ truyền thông do các giao thức này cung cấp thông qua socket API.
+Chương trình ứng dụng ----socket API----> chương trình TCP, UDP hoặc IP để yêu cầu mang dữ liệu đi.
+Các giao thức ở 2 tầng này làm việc với dữ liệu ở dạng chuỗi byte. 
+Đơn vị của giao thức: Các giao thức ở 2 tầng này sẽ tự động tạo ra chuỗi byte của riêng mình từ dữ liệu ứng dụng bằng cách bổ sung thêm một chuỗi byte nhỏ (gọi là header) gắn vào trước chuỗi byte dữ liệu nó nhận được (gọi là payload). Chuỗi byte lớn này gọi là đơn vị của giao thức.
+(Refer to image Elon gived)
+HTTP header + Data
+TCP header + HTTP header + Data: TCP segment/UDP datagram
+IP header + TCP header + HTTP header + Data: IP Packet
+* Giao thức tầng liên kết:
+- Địa chỉ của tiến trình:
+Đặt vấn đề: Trên mỗi thiết bị đầu cuối đồng thời có rất nhiều tiến trình đồng thời khai thác các dịch vụ truyền thông do TCP/UDP cung cấp. Khi dữ liệu đến đich TCP hoặc UDP, cần có 1 cơ chế để có thể phân biệt được dữ liệu đó dành cho tiến trình nào.
+=> Để TCP/UDP xác định được tiến trình nào đang khái thác dịch vụ của mình, mỗi tiến trình được đánh một số không trùng lặp, gọi là số cổng (port).
+* Port num: số nguyên 2Byte (16bit) 0 to 65535. Các tiến trình có thể chọn ngẫu nhiên port num, miễn là giá trị đó chưa được sử dụng cho tiến trình khác. HĐH cũng có thể chọn ngẫu nhiên port num gán cho tiến trình.
+* Một số ứng dụng mạng có port num cố định:
+VD: Webserver(80), FTP server(20, 21).
+* Port num 0 to 1023: dành cho các dịch vụ hệ thống hoặc các chương trình ứng dụng mạng phổ biến.
+
+III. PHẦN CỨNG MẠNG
+III.1 Thiết bị đầu cuối
+- Khái niệm:
+* Thiết bị đầu cuối
+* Dữ liệu người dùng
+* End device để làm việc được với mạng máy tính cần đảm bảo 2 yếu tố: có thể kết nối về mặt phần cứng với mạng; có thể đảm bảo kết nối về mặt logic.
+- Kết nối thiết bị đầu cuối với mạng:
+* Kết nối vật lý: NIC
+* Kết nối logic: thiết bị đầu cuối phải hỗ trợ rất nhiều giao thức khác nhau => có HĐH nào đó
+- Xử lý dữ liệu trên thiết bị đầu cuối:
+PDU = PCI + SDU
+
+III.2 Đóng mở dữ liệu trên thiết bị đầu cuối
+- Đóng gói dữ liệu trên máy nguồn
+* Chuyển dữ liệu người dùng về chuỗi byte
+* Đóng gói dữ liệu phục vụ truyền thông end-to-end: do giao thức TCP/UDP cung cấp
+Chú ý: Khi đóng gói segment hoặc datagram, giao thức TCP hoặc UDP phải sử dụng số cổng của tiến trình gửi và của tiến trình nhận. Hai số cổng này nằm trong phần header của segment hoặc datagram.
+* Đóng gói dữ liệu phục vụ truyền thông host-to-host: do giao thức IP/IPv6 cung cấp
+PDU(packet) = (PCI)IP header + SDU(segment/datagram)
+* Đóng gói dữ liệu phục vụ truyền thông trong LAN
+PDU(frame) = frame header + IP packet + frame trailer
+Frame là đơn vị dữ liệu giao thức cuối cùng được đóng gói ở dạng số. Card mạng sau đó sẽ chuyển frame thành tín hiệu và đưa lên đường truyền.
+- Mở gói dữ liệu trên máy đích
+
+III.3 Môi trường truyền dẫn
+
+III.4 Kết nối phần cứng mạng
+- Card mạng (NIC): là thiết bị cho phép kết nối thiết bị đầu cuối với môi trường truyền dẫn.
+- Trên mỗi NIC của thiết bị có các chương trình giao thức mạng để trao đổi dữ liệu. Đây là những chương trình chạy trên phần cứng của NIC
+- Card mạng làm việc với cả dữ liệu và tín hiệu:
+* Đơn vị dữ liệu mà card mạng xử lý là frame
+* Loại tín hiệu mà card mạng làm việc bao gồm tín hiệu điện, quang và sóng vô tuyến. Phụ thuộc vào môi trường truyền, NIC có giao diện kết nối khác biệt nhau. Thông thường mỗi NIC chỉ có thể kết nối
+với một trong số các môi trường cáp xoắn, cáp quang, cáp đồng trục hoặc WiFi
+- Chức năng của card mạng:
+- MAC Address: Mỗi card mạng có một địa chỉ duy nhất dùng để phân biệt với card mạng khác, gọi là địa chỉ vật lý (MAC address). Địa chỉ MAC là một số nguyên 48bit(6Byte) duy nhất được gán cứng vào ROM của NIC. Địa chỉ MAC được thể hiện bởi 12 chữ số Hexa.
+* 3 byte đầu
+* 3 byte sau
+Khi máy tính khởi động, các bản sao địa chỉ MAC của NIC được tải vào bộ nhớ RAM của thiết bị để các giao thức sử dụng. Loại
+Địa chỉ MAC được thiết bị đầu cuôi sử dụng để so sánh xem một gói tin trong mạng LAN có dành cho mình hay không để quyết định loại bỏ hoặc tiếp tục xử lý. 
+Địa chỉ MAC của thiết bị gửi và nhận cũng được lưu trong chuỗi byte của frame dữ liệu và được các thiết bị như bridge hoặc switch sử dụng.
+- Kết nối không dây
+* Thường được thực hiện giữa end device vs network device, gọi là điểm truy cập không dây (Wireless Access Point).
+* Driver của card mạng + card mạng hỗ trợ kết nối không dây.
+- Kết nối cáp xoắn
+
+III.5 Thiết bị mạng
+- Là loại thiết bị trung gian giúp mở rộng mạng máy tính.
+- Đặc điểm phân biệt thiết bị mạng với thiết bị đầu cuối: 
+* Thiết bị mạng không cho phép cài đặt phần mềm ứng dụng, do đó người dùng đầu cuối không trực tiếp tương tác với thiết bị mạng.
+* Thiết bị mạng chỉ trung chuyển tín hiệu và dữ liệu. Nó không phải nơi xuất phát hay đích đến của dữ liệu người dùng.
+
+III.6 Hub, Repeater
+- Repeater (bộ lặp tín hiệu): Khi tín hiệu truyền ở khoảng cách lớn --> suy hao 
+=> Repeater: là thiết bị mạng LAN với 2 cổng dùng để tái tạo và khuếch đại tín hiệu nhận được từ một cổng và chuyển tiếp ra cổng còn lại.
+- Network Hub (bộ tập trung tín hiệu): là loại thiết bi mạng LAN với nhiều cổng cho phép kết nối với nhiều thiết bị khác và làm nhiệm vụ chuyển tiếp tín hiệu giữa tất cả các thiết bị khác kết nối với nó.
+=> Vai trò của Hub dần thay bằng Switch
+
+III.7 Bridge, Switch
+- Bridge (Cầu nối)
+- Switch (bộ chuyển mạch)
+
+III.8 Router (bộ định tuyến)
+- Là loại thiết bị có nhiều cổng dùng để ghép nối các mạng với nhau thành một liên mạng.
